@@ -1,0 +1,45 @@
+output_dir: /home/ubuntu/torchtune-0.5/llama3_1_8B
+checkpoint_dir: ${output_dir}/qlora_single_device/epoch_0
+
+model:
+    # Notice that we don't pass the lora model. We are using the merged weights,
+    _component_: torchtune.models.llama3_1.llama3_1_8b
+
+checkpointer:
+    _component_: torchtune.training.FullModelHFCheckpointer
+    checkpoint_dir: ${checkpoint_dir}
+    checkpoint_files: [
+        ft-model-00001-of-00004.safetensors,
+        ft-model-00002-of-00004.safetensors,
+        ft-model-00003-of-00004.safetensors,
+        ft-model-00004-of-00004.safetensors
+    ]
+    output_dir: ${output_dir}
+    model_type: LLAMA3
+
+# Tokenizer
+tokenizer:
+  _component_: torchtune.models.llama3.llama3_tokenizer
+  path: ${checkpoint_dir}/original/tokenizer.model
+  max_seq_len: null
+
+
+
+### OTHER PARAMETERS -- NOT RELATED TO THIS CHECKPOINT
+
+device: cuda
+dtype: bf16
+
+seed: null
+
+# Generation arguments; defaults taken from gpt-fast
+prompt:
+  system: "you are a helpful assiistant"
+  user: "What is the city of echos?"
+max_new_tokens: 300
+temperature: 0.8 # 0.8 and 0.6 are popular values to try  
+top_k: 300
+
+enable_kv_cache: True
+
+quantizer: null
